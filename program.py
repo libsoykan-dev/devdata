@@ -1,4 +1,4 @@
-    # Belli bir formatta veritabanı kaydetme ve ekleme programı
+    # Belli bir formatta veri tabanı kaydetme ve ekleme programı
     # Copyright (C) 2022 libsoykan-dev
 
     # This program is free software: you can redistribute it and/or modify
@@ -26,7 +26,7 @@ sutun = ['TC Kimlik No.', 'Adı', 'Soyadı', 'Ana Adı', 'Baba Adı', 'Doğum Ye
 
 ## Pencere düzeni belirlenir
 
-print("Veritabanı İçi Arama Programı Günlük (Copyright (C) 2022 libsoykan-dev):") # Günlüğe yazdır
+print("Veri Tabanı İçi Arama Programı Günlük (Copyright (C) 2022 libsoykan-dev):") # Günlüğe yazdır
 
 ## Pencere düzeni belirlenir
 
@@ -38,7 +38,7 @@ duzen = [[gka.Text("TCKN", 10), gka.Input(key='tckn'), gka.Text("Ad", 10), gka.I
           
           [gka.Table([], sutun, num_rows=20, key='sorgusonuc', def_col_width=10, auto_size_columns=False)],
           
-          [gka.Button('Sorgula', key='sorgula'), gka.FileBrowse('Veritabanı Aç', key='dosya'), gka.Button('Kayıt Programı', key='editor')]]
+          [gka.Button('Sorgula', key='sorgula'), gka.FileBrowse('Veri Tabanı Aç', key='dosya'), gka.Button('Kayıt Programı', key='editor')]]
 
 print(" - Pencere düzeni oluşturuldu ve PySimpleGui teması belirlendi.") # Günlüğe yazdır
 
@@ -64,7 +64,7 @@ while True: # Yüksek boyutlu CSV veritabanlarını içe aktarmada yaşanan sık
 
         maxInt = int(maxInt/10) # maxInt değerini düşürür
 
-window = gka.Window('Veritabanı İçi Arama v6.169_build2022 (Copyright (C) 2022 libsoykan-dev)', duzen) # Pencere oluşturulur
+window = gka.Window('Veri Tabanı İçi Arama v6.169_build2022 (Copyright (C) 2022 libsoykan-dev)', duzen) # Pencere oluşturulur
 
 print(" - Pencere oluşturuldu.")
 
@@ -78,7 +78,7 @@ while True:
 
     if vtdosya: # "vtdosya" değişkeni atanmışsa
 
-        print(" - Veritabanı içe aktarıldı") # Günlüğe yazdır
+        print(" - Veri Tabanı içe aktarıldı") # Günlüğe yazdır
 
         veritabani = csv.reader(open(vtdosya, "r", encoding="utf8"), delimiter=",") # Veritabanını içe aktar
 
@@ -212,7 +212,7 @@ while True:
 
         liste = [] # Tablo güncellemesi için "liste" girdisi python list türünde oluşturulur
         
-        print("Veritabanı Kayıt Oluşturucu Günlük (Copyright (C) 2022 libsoykan-dev):") # Günlüğe yazdır
+        print("Veri Tabanı Kayıt Oluşturucu Günlük (Copyright (C) 2022 libsoykan-dev):") # Günlüğe yazdır
 
         ## Pencere düzeni belirlenir
         
@@ -228,7 +228,7 @@ while True:
 
         window.close() # Pencereti kapat
         
-        window = gka.Window('Veritabanı Kayıt Programı v6.169_build2022 (Copyright (C) 2022 libsoykan-dev)', duzen) # Sonra tekrar aç (kısaca: yenile)
+        window = gka.Window('Veri Tabanı Kayıt Programı v6.169_build2022 (Copyright (C) 2022 libsoykan-dev)', duzen) # Sonra tekrar aç (kısaca: yenile)
         
         print(" - Pencere oluşturuldu.") # Günlüğe yazdır
         

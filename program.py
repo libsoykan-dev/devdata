@@ -1,4 +1,6 @@
-    # Belli bir formatta veri tabanı kaydetme ve ekleme programı
+    # SQL veritabanında arama yapar program
+    # Programın aktif olarak kullanılması için gerekli yerlerin düzenlenmesi
+    # ve halihazırda MYSQL sunucusunun çalışması gerekmektedir
     # Copyright (C) 2022 libsoykan-dev
 
     # This program is free software: you can redistribute it and/or modify
@@ -14,33 +16,56 @@
     # You should have received a copy of the GNU General Public License
     # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import csv # CSV uzantılı veritabanını işlemek için "csv" kütüphanesi içe aktarılır
+import cv2 # girisekrani fonksiyonu için kullanılır
 
-import sys # En yüksek integer değeri için sys kütüphanesi
+from PIL import ImageGrab # girisekrani fonksiyonu için kullanılır
 
-import PySimpleGUI as gka # Grafik Kullanıcı Arabirimi için "pysimplegui" veritabanı kullanılır
+import sys # Yol tespiti için kullanılır
 
-liste = [] # Tablo güncellemesi için "liste" girdisi python list türünde oluşturulur
+import PySimpleGUI as gka # Grafik Kullanıcı Arabirimi için "pysimplegui" gka olarak kullanılır
 
-sutun = ['TC Kimlik No.', 'Adı', 'Soyadı', 'Ana Adı', 'Baba Adı', 'Doğum Yeri', 'Doğum Tarihi', 'Cinsiyeti', 'Nüfus İli', 'Nüfus İlçesi', 'Adres İli', 'Adres İlçesi', 'Mahalle', 'Sokak', 'Dış Kapı No.', 'İç Kapı No.'] # Sütun başlıkları belirlenir
+import os # kaynakdosya fonksiyonunda kullanılır
+
+import mysql.connector # MYSQL temel fonksiyonlarının ve sorguların çalıştırılması için kullanılır
+
+sutun = ['Liste No', 'TC Kimlik No.', 'Adı', 'Soyadı', 'Ana Adı', 'Baba Adı', 'Doğum Yeri', 'Doğum Tarihi', 'Cinsiyeti', 'Nüfus İli', 'Nüfus İlçesi', 'Adres İli', 'Adres İlçesi', 'Mahalle', 'Sokak', 'Dış Kapı No.', 'İç Kapı No.'] # Sütun başlıkları belirlenir
+
+print("DEVDATA Günlük (Copyright (C) 2022 libsoykan-dev):") # Günlüğe yazdır
 
 ## Pencere düzeni belirlenir
 
-print("Veri Tabanı İçi Arama Programı Günlük (Copyright (C) 2022 libsoykan-dev):") # Günlüğe yazdır
+duzen = [ [gka.Radio('Yerli Vatandaş', "rad1", default=True, key="yerlirad")],
 
-## Pencere düzeni belirlenir
-
-duzen = [[gka.Text("TCKN", 10), gka.Input(key='tckn'), gka.Text("Ad", 10), gka.Input(key='ad'), gka.Text("Soyad", 10), gka.Input(key='soyad')],
+          [gka.Text("TCKN", 10), gka.Input(key='tckn'), gka.Text("Ad", 10), gka.Input(key='ad'), gka.Text("Soyad", 10), gka.Input(key='soyad')],
           [gka.Text("Ana Adı", 10), gka.Input(key='anaadi'), gka.Text("Baba Adı", 10), gka.Input(key='babaadi'), gka.Text("Doğum Yeri", 10), gka.Input(key='dogumyeri')],
           [gka.Text("Doğum Tarihi", 10), gka.Input(key='dogumtarihi'), gka.Text("Cinsiyeti", 10), gka.Input(key='cinsiyeti'), gka.Text("Nüfus İli", 10), gka.Input(key='nufusili')],
           [gka.Text("Nüfus İlçesi", 10), gka.Input(key='nufusilcesi'), gka.Text("Adres İli", 10), gka.Input(key='adresili'), gka.Text("Adres İlçesi", 10), gka.Input(key='adresilcesi')],
           [gka.Text("Mahalle", 10), gka.Input(key='mahalle'), gka.Text("Sokak", 10), gka.Input(key='sokak'), gka.Text("İç Kapı No.", 10), gka.Input(key='ickapino', s=(15,1)), gka.Text(" Dış Kapı No."), gka.Input(key='diskapino', s=(15,1))],
           
+          [gka.Radio('Yabancı Vatandaş', "rad1", default=False, key="yabancirad")],
+          
+          [gka.Text("TCKN", 10), gka.Input(key='ytckn'), gka.Text("Ad", 10), gka.Input(key='yad'), gka.Text("Soyad", 10), gka.Input(key='ysoyad')],
+          [gka.Text("Ana Adı", 10), gka.Input(key='yanaadi'), gka.Text("Baba Adı", 10), gka.Input(key='ybabaadi'), gka.Text("Doğum Yeri", 10), gka.Input(key='ydogumyeri')],
+          [gka.Text("Doğum Tarihi", 10), gka.Input(key='ydogumtarihi'), gka.Text("Adres İli", 10), gka.Input(key='yadresili'), gka.Text("Adres İlçesi", 10), gka.Input(key='yadresilcesi')],
+          [gka.Text("Mahalle", 10), gka.Input(key='ymahalle'), gka.Text("Sokak", 10), gka.Input(key='ysokak'), gka.Text("İç Kapı No.", 10), gka.Input(key='yickapino', s=(15,1)), gka.Text(" Dış Kapı No."), gka.Input(key='ydiskapino', s=(15,1))],
+          
           [gka.Table([], sutun, num_rows=20, key='sorgusonuc', def_col_width=10, auto_size_columns=False)],
           
-          [gka.Button('Sorgula', key='sorgula'), gka.FileBrowse('Veri Tabanı Aç', key='dosya'), gka.Button('Kayıt Programı', key='editor')]]
+          [gka.Button('Sorgula', key='sorgula'), gka.Text(key='aramadurum')]]
 
 print(" - Pencere düzeni oluşturuldu ve PySimpleGui teması belirlendi.") # Günlüğe yazdır
+
+def kaynakdosya(kaynakyol): # Pyinstaller ile program derlenirken dosyalar çalıştırılabilir ikilik dosyaya eklenir
+
+    try:
+
+        merkezyol = sys._MEIPASS
+
+    except Exception:
+
+        merkezyol = os.path.abspath(".")
+
+    return os.path.join(merkezyol, kaynakyol)
 
 def kapat_kontrol(): # Kapatma fonksiyonu
     
@@ -48,208 +73,216 @@ def kapat_kontrol(): # Kapatma fonksiyonu
 
         print("Çıkış") # Günlüğe yazdır
         
-        exit() # Çık
+        sys.exit() # Çık
 
-maxInt = sys.maxsize # "maxInt" değişkenine en yüksek integer değeri
+def girisekrani(foto, bekleme): # Açılış resmi için bekleme süresi ve görüntü dosyasının gireceği bir fonksiyon tanımlanır
+    
+    ekransz = ImageGrab.grab() # Ekran çözünürlüğünün ölçümü için ekran görüntüsü alınır
 
-while True: # Yüksek boyutlu CSV veritabanlarını içe aktarmada yaşanan sıkıntıların giderilmesi için maksimum boyut limitini arttıran döngü
+    ekranx = int(ekransz.size[0]) # Ekranın yataydaki piksel sayısı yani birincil ekran için x_max değeri gibi düşünülebilir
 
-    try:
+    ekrany = int(ekransz.size[1]) # Ekranın dikeydeki piksel sayısı yani birincil ekran için y_max değeri gibi düşünülebilir
 
-        csv.field_size_limit(maxInt) # CSV içe aktarma limitini
+    splx = int(ekranx / 3) # Splash'in ekranın eksen başına yalnızca üçte birini kaplaması için çözünürlük değerleri 3'e bölünür
+    
+    sply = int(ekrany / 3) # "
 
-        break
+    img = cv2.imread(foto, cv2.IMREAD_ANYCOLOR) # img değişkenine fotoğraf dosyasından okunan veri atanır
 
-    except OverflowError: # Eğer maxInt olabilecek değeri taşırırsa
+    cv2.namedWindow('image', flags=cv2.WINDOW_GUI_NORMAL) # Pencere oluşturulur
 
-        maxInt = int(maxInt/10) # maxInt değerini düşürür
+    cv2.setWindowProperty('image', cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
 
-window = gka.Window('Veri Tabanı İçi Arama v6.169_build2022 (Copyright (C) 2022 libsoykan-dev)', duzen) # Pencere oluşturulur
+    cv2.resizeWindow('image', splx, sply)
 
-print(" - Pencere oluşturuldu.")
+    cv2.moveWindow('image', int(ekranx / 1.50) - splx, int(ekrany / 1.50) - sply)
 
-while True:
+    cv2.imshow('image', img)
+
+    cv2.waitKey(bekleme)
+
+    cv2.destroyAllWindows()
+
+girisekrani(kaynakdosya('splash.png'), 3000)
+
+## Bu kısımda mydb fonksiyonunun içel değerlerini kullanım amacına göre düzenleyiniz
+
+mydb = mysql.connector.connect(
+  host="localhost",
+  user="root",
+  password="",
+  database="devdata0",
+  port=3311
+)
+
+window = gka.Window('DEVDATA v21.110 (Copyright (C) 2022 libsoykan-dev)', duzen) # Pencere oluşturulur
+
+print(" - Pencere oluşturuldu.") 
+
+while True: # Bildiğimiz while true döngüsü
 
     event, values = window.read() # Butonların ve girdi panellerinin değişkenleri tanımlanır
 
-    kapat_kontrol()
+    kapat_kontrol() # Çarpının tıklanıp tıklanmadığı sorgulanır
 
-    vtdosya = values['dosya'] # Okunan "Dosya Aç" işlemi "vtdosya" değişkenine aktarılır
+    ## Muhtelif değerler atanır
 
-    if vtdosya: # "vtdosya" değişkeni atanmışsa
+    if values['yerlirad'] == True: # Eğer Yerli Vatandaş 'radio' butonu tıklanmışsa MYSQL sorgu değişkenleri atanır
 
-        print(" - Veri Tabanı içe aktarıldı") # Günlüğe yazdır
+        devdatax = "yerli" # Kullanılacak tablo adı devdatax değişkenine atanır
 
-        veritabani = csv.reader(open(vtdosya, "r", encoding="utf8"), delimiter=",") # Veritabanını içe aktar
+        tckn = values['tckn']
 
-    elif event != gka.WIN_CLOSED: # Pencere kapatıldığında veritabanı seçimi için uyarı çıkması önlenir
+        ad = values['ad']
 
-            gka.Popup('Uyarı:\nLütfen veritabanı seçiniz.', keep_on_top=True) # Popup oluşturulur
+        soyad = values['soyad']
 
-            continue
+        anaadi = values['anaadi']
 
-    # Muhtelif değerler atanır
+        babaadi = values['babaadi']
 
-    tckn = values['tckn']
+        dogumyeri = values['dogumyeri']
 
-    ad = values['ad']
+        dogumtarihi = values['dogumtarihi']
 
-    soyad = values['soyad']
+        cinsiyeti = values['cinsiyeti']
 
-    anaadi = values['anaadi']
+        nufusili = values['nufusili']
 
-    babaadi = values['babaadi']
+        nufusilcesi = values['nufusilcesi']
 
-    dogumyeri = values['dogumyeri']
+        adresili = values['adresili']
 
-    dogumtarihi = values['dogumtarihi']
+        adresilcesi = values['adresilcesi']
 
-    cinsiyeti = values['cinsiyeti']
-    
-    nufusili = values['nufusili']
+        mahalle = values['mahalle']
 
-    nufusilcesi = values['nufusilcesi']
+        sokak = values['sokak']
 
-    adresili = values['adresili']
+        ickapino = values['ickapino']
 
-    adresilcesi = values['adresilcesi']
+        diskapino = values['diskapino']
 
-    mahalle = values['mahalle']
+    elif values['yabancirad'] == True: # Eğer Yabancı Vatandaş 'radio' butonu tıklanmışsa MYSQL sorgu değişkenleri atanır
 
-    sokak = values['sokak']
+        devdatax = "yabanci" # Kullanılacak tablo adı devdatax değişkenine atanır
 
-    ickapino = values['ickapino']
+        tckn = values['ytckn']
 
-    diskapino = values['diskapino']
+        ad = values['yad']
 
-    # if komutuna girecek koşullar belirlenir
+        soyad = values['ysoyad']
+
+        anaadi = values['yanaadi']
+
+        babaadi = values['ybabaadi']
+
+        dogumyeri = values['ydogumyeri']
+
+        dogumtarihi = values['ydogumtarihi']
+
+        adresili = values['yadresili']
+
+        adresilcesi = values['yadresilcesi']
+
+        mahalle = values['ymahalle']
+
+        sokak = values['ysokak']
+
+        ickapino = values['yickapino']
+
+        diskapino = values['ydiskapino']
+
+    ## MYSQL sorgusuna girecek koşullar belirlenir
 
     if tckn:
 
-        kmt = "tckn == satir[0]"
+        kmt = "TC='" + str(tckn) + "'"
 
     else:
 
-        kmt = "True"
+        kmt = "1=1"
 
     if ad:
 
-        kmt += " and ad == satir[1]"
+        kmt += " AND ADI='" + str(ad) + "'"
     
     if soyad:
     
-        kmt += " and soyad == satir[2]"
+        kmt += " AND SOYADI='" + str(soyad) + "'"
     
     if anaadi:
     
-        kmt += " and anaadi == satir[3]"
+        kmt += " AND ANAADI='" + str(anaadi) + "'"
     
     if babaadi:
     
-        kmt += " and babaadi == satir[4]"
+        kmt += " AND BABAADI='" + str(babaadi) + "'"
     
     if dogumyeri:
     
-        kmt += " and dogumyeri == satir[5]"
+        kmt += " AND DOGUMYERI='" + str(dogumyeri) + "'"
     
     if dogumtarihi:
     
-        kmt += " and dogumtarihi == satir[6]"
-    
-    if cinsiyeti:
-    
-        kmt += " and cinsiyeti == satir[7]"
-    
-    if nufusili:
-    
-        kmt += " and nufusili == satir[8]"
-    
-    if nufusilcesi:
-    
-        kmt += " and nufusilcesi == satir[9]"
-    
+        kmt += " AND DOGUMTARIHI='" + str(dogumtarihi) + "'"
+
     if adresili:
     
-        kmt += " and adresili == satir[10]"
+        kmt += " AND ADRESIL='" + str(adresili) + "'"
     
     if adresilcesi:
     
-        kmt += " and adresilcesi == satir[11]"
+        kmt += " AND ADRESILCE='" + str(adresilcesi) + "'"
     
     if mahalle:
     
-        kmt += " and mahalle == satir[12]"
+        kmt += " AND MAHALLE='" + str(mahalle) + "'"
     
     if sokak:
     
-        kmt += " and sokak == satir[13]"
+        kmt += " AND CADDE='" + str(sokak) + "'"
     
     if ickapino:
     
-        kmt += " and ickapino == satir[14]"
+        kmt += " AND DAIRENO='" + str(ickapino) + "'"
     
     if diskapino:
     
-        kmt += " and diskapino == satir[15]"
+        kmt += " AND KAPINO='" + str(diskapino) + "'"
 
     if event == 'sorgula': # "Sorgula" tıklandıysa
 
-        for satir in veritabani: # Satırlar için for döngüsü
-
-            kapat_kontrol()
-
-            window.refresh() # Donmaları ve takılmaları önlemek için tazeleme komutu
-
-            if eval(kmt): # Eğer eşleşme bulunursa
-
-                print(satir) # Günlüğe yazdır
-
-                liste.insert(0, satir) # PySimpleGui'nin Table.update() fonksiyonunda append komutu bulunmadığı için liste değişkenine her bulunan eşleşme sırayla eklenir
-
-                window['sorgusonuc'].update(values=liste) # Tabloyu liste değişkenine göre güncelle
-
-    if event == 'editor': # Kayıt Oluşturucu
-
         liste = [] # Tablo güncellemesi için "liste" girdisi python list türünde oluşturulur
-        
-        print("Veri Tabanı Kayıt Oluşturucu Günlük (Copyright (C) 2022 libsoykan-dev):") # Günlüğe yazdır
 
-        ## Pencere düzeni belirlenir
-        
-        duzen = [[gka.Text("TCKN", 10), gka.Input(key='tckn'), gka.Text("Ad", 10), gka.Input(key='ad'), gka.Text("Soyad", 10), gka.Input(key='soyad')],
-                  [gka.Text("Ana Adı", 10), gka.Input(key='anaadi'), gka.Text("Baba Adı", 10), gka.Input(key='babaadi'), gka.Text("Doğum Yeri", 10), gka.Input(key='dogumyeri')],
-                  [gka.Text("Doğum Tarihi", 10), gka.Input(key='dogumtarihi'), gka.Text("Cinsiyeti", 10), gka.Input(key='cinsiyeti'), gka.Text("Nüfus İli", 10), gka.Input(key='nufusili')],
-                  [gka.Text("Nüfus İlçesi", 10), gka.Input(key='nufusilcesi'), gka.Text("Adres İli", 10), gka.Input(key='adresili'), gka.Text("Adres İlçesi", 10), gka.Input(key='adresilcesi')],
-                  [gka.Text("Mahalle", 10), gka.Input(key='mahalle'), gka.Text("Sokak", 10), gka.Input(key='sokak'), gka.Text("İç Kapı No.", 10), gka.Input(key='ickapino', s=(15,1)), gka.Text(" Dış Kapı No."), gka.Input(key='diskapino', s=(15,1))], 
-                  [gka.Table([], sutun, num_rows=20, key='duzenleme', def_col_width=10, auto_size_columns=False)],
-                  [gka.Button('Ekle', key='ekle'), gka.Button('Kaydet', key='kaydet')]]
-        
-        print(" - Pencere düzeni oluşturuldu.") # Günlüğe yazdır
+        window['aramadurum'].update("Arama yapılıyor...") # Durum metni güncellenir
 
-        window.close() # Pencereti kapat
-        
-        window = gka.Window('Veri Tabanı Kayıt Programı v6.169_build2022 (Copyright (C) 2022 libsoykan-dev)', duzen) # Sonra tekrar aç (kısaca: yenile)
-        
-        print(" - Pencere oluşturuldu.") # Günlüğe yazdır
-        
-        while True:
-        
-            event, values = window.read()
-        
-            if event == 'ekle': # Eğer "Ekle" tıklandıysa
-        
-                liste.append([tckn, ad, soyad, anaadi, babaadi, dogumyeri, dogumtarihi, cinsiyeti, nufusili, nufusilcesi, adresili, adresilcesi, mahalle, sokak, ickapino, diskapino]) # "liste" değişkenine girilen değerleri ekle
-        
-                window['duzenleme'].update(values=liste) # Tabloyu güncelle
-        
-            if event == 'kaydet': # Eğer "Kaydet" tıklandıysa
-        
-                rawdosya = open(vtdosya, 'a+', newline ='') # Veritabanını kayda elverişli şekilde aç
-        
-                with rawdosya:
-        
-                    kayit = csv.writer(rawdosya) # "csv.writer(rawdosya)" kayıt değişkeninin alt komutu olarak atanır
-        
-                    kayit.writerows(liste) # "liste" değişkeninde bulunan değerler dosyaya eklenir
+        window.refresh()
 
-            kapat_kontrol()
+        mycursor = mydb.cursor()
+
+        mycursor.execute("SELECT * FROM " + devdatax + " WHERE " + kmt + ";") # MYSQL sorgusu çalıştırılır
+
+        myresult = mycursor.fetchall() # Sonuçlar myresult değişkenine atanır
+
+        for x in myresult:
+
+            hamliste = []
+
+            window.refresh()
+
+            if devdatax == "yabanci":
+
+                for listsec in [0, 1, 2, 3, 4, 6, 10, 9, 7, 5, 5, 13, 14, 18, 17, 15, 16]: # Yabancı vatandaş veritabanının belirlenen listeleme düzenine uyması için işlenmesi
+
+                    hamliste.append(list(x)[listsec])
+
+                liste.append(hamliste)
+
+            if devdatax == "yerli":
+
+                liste.append(list(x))
+
+        window['sorgusonuc'].update(values=liste) # Penceredeki tablo güncellenir
+
+        window['aramadurum'].update("Arama başarıyla gerçekleşti. Bulunan kayıt sayısı: " + str(len(liste))) # Durum metni güncellenir

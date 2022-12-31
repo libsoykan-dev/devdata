@@ -1,5 +1,5 @@
-# Veri Tabanı Arama Programı (DEVDATA)
+DEVDATA
 
-Bir veri tabanı içinde arama yapma fonksiyonlarını içerir.
+Bir MYSQL veri tabanı içinde sorgu yapma fonksiyonlarını içerir.
 
 Program varsayılan olarak kimlik bilgileri veri tabanına göre düzenlenmiştir.

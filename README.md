@@ -26,4 +26,5 @@ cv2: girisekrani fonksiyonu (detaylar için yorumlara bkz.)
 
 # Ekran Görüntüleri
 
-![1](https://user-images.githubusercontent.com/103260281/210154642-960b9a37-7ab6-4948-8464-6e843ea7dc6f.PNG)
+
+![1](https://user-images.githubusercontent.com/103260281/210623528-f174ba64-6114-4ed5-a838-29301faa2c37.PNG)

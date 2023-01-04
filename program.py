@@ -16,23 +16,21 @@
     # You should have received a copy of the GNU General Public License
     # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import cv2 # girisekrani fonksiyonu için kullanılır
+import cv2 # girisekrani fonksiyonu için kullanılır (betik derlemeyecekse girisekrani fonksiyonu ile birlikte kaldırınız)
 
-from PIL import ImageGrab # girisekrani fonksiyonu için kullanılır
+from PIL import ImageGrab # girisekrani fonksiyonu için kullanılır (betik derlemeyecekse girisekrani fonksiyonu ile birlikte kaldırınız)
 
-import sys # Yol tespiti için kullanılır
+import sys # Yol tespiti için kullanılır (betik derlemeyecekse kaynakdosya fonksiyonu ile birlikte kaldırınız)
 
 import PySimpleGUI as gka # Grafik Kullanıcı Arabirimi için "pysimplegui" gka olarak kullanılır
 
-import os # kaynakdosya fonksiyonunda kullanılır
+import os # kaynakdosya fonksiyonunda kullanılır (betik derlemeyecekse kaynakdosya fonksiyonu ile birlikte kaldırınız)
 
 import mysql.connector # MYSQL temel fonksiyonlarının ve sorguların çalıştırılması için kullanılır
 
 sutun = ['Liste No', 'TC Kimlik No.', 'Adı', 'Soyadı', 'Ana Adı', 'Baba Adı', 'Doğum Yeri', 'Doğum Tarihi', 'Cinsiyeti', 'Nüfus İli', 'Nüfus İlçesi', 'Adres İli', 'Adres İlçesi', 'Mahalle', 'Sokak', 'Dış Kapı No.', 'İç Kapı No.'] # Sütun başlıkları belirlenir
 
-print("DEVDATA Günlük (Copyright (C) 2022 libsoykan-dev):") # Günlüğe yazdır
-
-## Pencere düzeni belirlenir
+## Pencere düzeni belirlenir (programı kendi veri tabanınıza uyarlamak için düzenlemeniz gereken kısımlardan biridir)
 
 duzen = [ [gka.Radio('Yerli Vatandaş', "rad1", default=True, key="yerlirad")],
 
@@ -42,20 +40,11 @@ duzen = [ [gka.Radio('Yerli Vatandaş', "rad1", default=True, key="yerlirad")],
           [gka.Text("Nüfus İlçesi", 10), gka.Input(key='nufusilcesi'), gka.Text("Adres İli", 10), gka.Input(key='adresili'), gka.Text("Adres İlçesi", 10), gka.Input(key='adresilcesi')],
           [gka.Text("Mahalle", 10), gka.Input(key='mahalle'), gka.Text("Sokak", 10), gka.Input(key='sokak'), gka.Text("İç Kapı No.", 10), gka.Input(key='ickapino', s=(15,1)), gka.Text(" Dış Kapı No."), gka.Input(key='diskapino', s=(15,1))],
           
-          [gka.Radio('Yabancı Vatandaş', "rad1", default=False, key="yabancirad")],
-          
-          [gka.Text("TCKN", 10), gka.Input(key='ytckn'), gka.Text("Ad", 10), gka.Input(key='yad'), gka.Text("Soyad", 10), gka.Input(key='ysoyad')],
-          [gka.Text("Ana Adı", 10), gka.Input(key='yanaadi'), gka.Text("Baba Adı", 10), gka.Input(key='ybabaadi'), gka.Text("Doğum Yeri", 10), gka.Input(key='ydogumyeri')],
-          [gka.Text("Doğum Tarihi", 10), gka.Input(key='ydogumtarihi'), gka.Text("Adres İli", 10), gka.Input(key='yadresili'), gka.Text("Adres İlçesi", 10), gka.Input(key='yadresilcesi')],
-          [gka.Text("Mahalle", 10), gka.Input(key='ymahalle'), gka.Text("Sokak", 10), gka.Input(key='ysokak'), gka.Text("İç Kapı No.", 10), gka.Input(key='yickapino', s=(15,1)), gka.Text(" Dış Kapı No."), gka.Input(key='ydiskapino', s=(15,1))],
-          
           [gka.Table([], sutun, num_rows=20, key='sorgusonuc', def_col_width=10, auto_size_columns=False)],
           
           [gka.Button('Sorgula', key='sorgula'), gka.Text(key='aramadurum')]]
 
-print(" - Pencere düzeni oluşturuldu ve PySimpleGui teması belirlendi.") # Günlüğe yazdır
-
-def kaynakdosya(kaynakyol): # Pyinstaller ile program derlenirken dosyalar çalıştırılabilir ikilik dosyaya eklenir
+def kaynakdosya(kaynakyol): # Pyinstaller ile program derlenirken dosyalar, çalıştırılabilir ikilik dosyaya eklenir (betik derlemeyecekse os ve sys kütüphanesiyle ile birlikte kaldırınız)
 
     try:
 
@@ -70,12 +59,10 @@ def kaynakdosya(kaynakyol): # Pyinstaller ile program derlenirken dosyalar çal�
 def kapat_kontrol(): # Kapatma fonksiyonu
     
     if event == gka.WIN_CLOSED: # Pencere üst köşesindeki kapat simgesi kullanıldığında
-
-        print("Çıkış") # Günlüğe yazdır
         
-        sys.exit() # Çık
+        exit() # Çık
 
-def girisekrani(foto, bekleme): # Açılış resmi için bekleme süresi ve görüntü dosyasının gireceği bir fonksiyon tanımlanır
+def girisekrani(foto, bekleme): # Açılış resmi için bekleme süresi ve görüntü dosyasının gireceği bir fonksiyon tanımlanır (betik cv2 ve PIL kütüphanelerine bağlıdır, gerekmiyorsa kaldırınız)
     
     ekransz = ImageGrab.grab() # Ekran çözünürlüğünün ölçümü için ekran görüntüsü alınır
 
@@ -103,9 +90,9 @@ def girisekrani(foto, bekleme): # Açılış resmi için bekleme süresi ve gör
 
     cv2.destroyAllWindows()
 
-girisekrani(kaynakdosya('splash.png'), 3000)
+girisekrani(kaynakdosya('splash.png'), 3000) # 3000 ms süreyle splash.png dosyası ekranın tam ortasında görüntülenir
 
-## Bu kısımda mydb fonksiyonunun içel değerlerini kullanım amacına göre düzenleyiniz
+## Bu kısımda mydb fonksiyonunun içel değerlerini MYSQL sunucusuna göre düzenleyiniz (programı kendi veri tabanınıza uyarlamak için düzenlemeniz gereken kısımlardan biridir)
 
 mydb = mysql.connector.connect(
   host="localhost",
@@ -115,21 +102,21 @@ mydb = mysql.connector.connect(
   port=3311
 )
 
-window = gka.Window('DEVDATA v21.110 (Copyright (C) 2022 libsoykan-dev)', duzen) # Pencere oluşturulur
-
-print(" - Pencere oluşturuldu.") 
+window = gka.Window('DEVDATA v23.14 (Copyright (C) 2022 libsoykan-dev)', duzen) # Pencere oluşturulur
 
 while True: # Bildiğimiz while true döngüsü
 
     event, values = window.read() # Butonların ve girdi panellerinin değişkenleri tanımlanır
 
-    kapat_kontrol() # Çarpının tıklanıp tıklanmadığı sorgulanır
+    kapat_kontrol() # Pencere çubuğundaki çarpının tıklanıp tıklanmadığı denetlenir
 
     ## Muhtelif değerler atanır
 
-    if values['yerlirad'] == True: # Eğer Yerli Vatandaş 'radio' butonu tıklanmışsa MYSQL sorgu değişkenleri atanır
+    if values['yerlirad'] == True: # Eğer Yerli Vatandaş 'radio' butonu tıklanmışsa MYSQL sorgu değişkenleri atanır (programı kendi veri tabanınıza uyarlamak için düzenlemeniz gereken kısımlardan biridir)
 
         devdatax = "yerli" # Kullanılacak tablo adı devdatax değişkenine atanır
+        
+        ## Sorgu satırına girecek koşulların pencere girişlerindeki karşılıkları atanır
 
         tckn = values['tckn']
 
@@ -163,37 +150,7 @@ while True: # Bildiğimiz while true döngüsü
 
         diskapino = values['diskapino']
 
-    elif values['yabancirad'] == True: # Eğer Yabancı Vatandaş 'radio' butonu tıklanmışsa MYSQL sorgu değişkenleri atanır
-
-        devdatax = "yabanci" # Kullanılacak tablo adı devdatax değişkenine atanır
-
-        tckn = values['ytckn']
-
-        ad = values['yad']
-
-        soyad = values['ysoyad']
-
-        anaadi = values['yanaadi']
-
-        babaadi = values['ybabaadi']
-
-        dogumyeri = values['ydogumyeri']
-
-        dogumtarihi = values['ydogumtarihi']
-
-        adresili = values['yadresili']
-
-        adresilcesi = values['yadresilcesi']
-
-        mahalle = values['ymahalle']
-
-        sokak = values['ysokak']
-
-        ickapino = values['yickapino']
-
-        diskapino = values['ydiskapino']
-
-    ## MYSQL sorgusuna girecek koşullar belirlenir
+    ## MYSQL sorgusuna girecek koşullar belirlenir (programı kendi veri tabanınıza uyarlamak için düzenlemeniz gereken kısımlardan biridir)
 
     if tckn:
 
@@ -257,31 +214,19 @@ while True: # Bildiğimiz while true döngüsü
 
         window['aramadurum'].update("Arama yapılıyor...") # Durum metni güncellenir
 
-        window.refresh()
+        window.refresh() # Her window.update() sonrasına eklenir
 
-        mycursor = mydb.cursor()
+        mycursor = mydb.cursor() # MYSQL sorgusunu çalıştırmak için MYSQL sunucusuna bağlanılır
 
         mycursor.execute("SELECT * FROM " + devdatax + " WHERE " + kmt + ";") # MYSQL sorgusu çalıştırılır
 
         myresult = mycursor.fetchall() # Sonuçlar myresult değişkenine atanır
 
-        for x in myresult:
-
-            hamliste = []
-
-            window.refresh()
-
-            if devdatax == "yabanci":
-
-                for listsec in [0, 1, 2, 3, 4, 6, 10, 9, 7, 5, 5, 13, 14, 18, 17, 15, 16]: # Yabancı vatandaş veritabanının belirlenen listeleme düzenine uyması için işlenmesi
-
-                    hamliste.append(list(x)[listsec])
-
-                liste.append(hamliste)
-
-            if devdatax == "yerli":
-
-                liste.append(list(x))
+        for x in myresult: # Bulunan sonuçların tabloda görüntülenebilmesi için işlenmesi
+            
+            liste.append(list(x)) # liste değişkenine x, list biçiminde eklenir
+            
+            window.refresh() # GKA tazelenir
 
         window['sorgusonuc'].update(values=liste) # Penceredeki tablo güncellenir
 

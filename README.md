@@ -28,6 +28,9 @@ cv2: girisekrani fonksiyonu (detaylar için yorumlara bkz.)
 
 Programın bazı yerlerde yasa dışı veri tabanları ile kullanıldığı görülmektedir. Daha önceki sürümler için isanslandığı GNU Açık Kaynak Lisansı veya mevcut Creative Commons Atıf Gayri-Ticari 4.0 Uluslararası Kamu Lisansı kapsamında geliştirici olarak tarafım bu durumdan sorumlu tutulamaz.
 
+
+# Kötü kullanımda bulunan şahıslar tespit edildiğinde haklarında derhal yasal işlem başlatılır!!!
+
 # Ekran Görüntüleri
 
 
